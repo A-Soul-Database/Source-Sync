@@ -1,6 +1,0 @@
-[submodule "PhotoSearch"]
-	path = PhotoSearch
-	url = https://github.com/A-Soul-Database/PhotoSearch.git
-[submodule "RangeDownloader"]
-	path = RangeDownloader
-	url = https://github.com/A-Soul-Database/RangeDownloader.git
