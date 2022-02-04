@@ -2,8 +2,7 @@ import requests
 import os
 import json
 from lxml import etree
-from PhotoSearch.oped import main as oped
-from RangeDownloader.Code import app
+import ps.oped as oped
 import time
 import re
 
