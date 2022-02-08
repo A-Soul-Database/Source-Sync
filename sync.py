@@ -120,6 +120,7 @@ class Download:
     def download(self,name,url,args,path:str="."):
         os.system(f'aria2c {args} -c -s16 -x16 -k1M -o "{name}" -d {path} "{url}"')
         ps.main.HashListGen().SlpitSingleVideo(f"{path}/{name}")
+        os.remove(f"{path}/{name}")
 
 
 def do_sync():
@@ -148,7 +149,6 @@ def Actions_Prepare():
         return [],[]
 
 if __name__ == "__main__":
-    n = 0
     do_sync()
     finished , error = Actions_Prepare()
     List_Json = [fn for fn in os.listdir(".") if fn.endswith(".SourceList")]
@@ -158,7 +158,6 @@ if __name__ == "__main__":
             all_Json += json.load(f)
     for item in all_Json:
         if finished.count(item["title"]) == 0:
-            if n > 5: break
             try:
                 Download(item["url"],item["url"])
                 finished.append(item["url"])
