@@ -118,9 +118,11 @@ class Download:
                     self.download(save_name,playurl,args)
 
     def download(self,name,url,args,path:str="."):
-        os.system(f'aria2c {args} -c -s16 -x16 -k1M -o "{name}" -d {path} "{url}"')
+        os.system(f'aria2c {args} -c -s16 -x16 -k1M -o "full_{name}" -d {path} "{url}"')
+        os.system(f"ffmpeg -i full_{name} -b:v 400k -s 640x360 {name}") #compress
         ps.main.HashListGen().SlpitSingleVideo(f"{path}/{name}")
         os.remove(f"{path}/{name}")
+        os.remove(f"{path}/full_{name}")
 
 
 def do_sync():
@@ -131,6 +133,7 @@ def do_sync():
 def Actions_Prepare():
     # Make Empty Alpha If First Time
     os.system("sudo apt install aria2c")
+    os.system("sudo apt install ffmpeg")
     try:
         Down_Url = requests.get("https://api.github.com/repos/A-Soul-Database/Source-Sync/releases/latest").json()["assets"][0]["browser_download_url"]
         with closing(requests.get(Down_Url)) as r:
