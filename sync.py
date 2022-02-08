@@ -148,6 +148,7 @@ def Actions_Prepare():
         return [],[]
 
 if __name__ == "__main__":
+    n = 0
     do_sync()
     finished , error = Actions_Prepare()
     List_Json = [fn for fn in os.listdir(".") if fn.endswith(".SourceList")]
@@ -157,9 +158,11 @@ if __name__ == "__main__":
             all_Json += json.load(f)
     for item in all_Json:
         if finished.count(item["title"]) == 0:
+            if n > 5: break
             try:
                 Download(item["url"],item["url"])
                 finished.append(item["url"])
+                n+=1
             except: error.append(item["url"])
 
     open("Alphas/Finished.json","w",encoding="utf-8").write(json.dumps(finished,ensure_ascii=False,indent=4))
