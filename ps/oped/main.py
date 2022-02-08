@@ -12,7 +12,7 @@ Config = {
     "Hash_Size":12,
     "Search_Distance":25,
     "Confidence_Distance":10,
-    "Ending_Distances":10,
+    "Ending_Distances":5,
 }
 
 
@@ -33,7 +33,7 @@ class Search:
             to_search_hash = imagehash.phash(Image.open(f'{image}'),hash_size=Config["Hash_Size"]).__str__()
         elif type == "img":
             to_search_hash = imagehash.phash(image,hash_size=Config["Hash_Size"]).__str__()
-        hashinfo = json.loads(open(f"opeds/{to_search_hash[:1]}.json","r").read())
+        hashinfo = json.loads(open(f"ps/oped/opeds/{to_search_hash[:1]}.json","r").read())
         #hashinfo = json.loads(open(f"./All.json","r").read())
         
         for i in hashinfo:

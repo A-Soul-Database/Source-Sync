@@ -2,26 +2,25 @@ import requests
 import os
 import json
 from lxml import etree
-import ps.oped as oped
+import ps
 import time
 import re
+import base64
+import urllib.parse
+from zipfile import ZipFile
+from contextlib import closing
 
 Config = {
     "Sources":["Jiabu","Naifen","Ofiicial"]
 }
 
-'''
-# Detect Sources 
-if requests.get("http://localhost:4399/ping").status_code != 200 and requests.get("http://localhost:4400/ping").status_code != 200:
-    os._exit(128)
-'''
 
 # AnalySis
 class Base:
     def __init__(self):
         self.info = []
         self.headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:96.0) Gecko/20100101 Firefox/96.0"}
-        self.Delete_Words = ["向晚","贝拉","珈乐","嘉然","乃琳","A-SOUL","【","】","夜谈","小剧场","游戏室","/","直播录像","直播回放","3D","B限",".mp4"," ","团播","！","!","?","？","_"] 
+        self.Delete_Words = ["向晚","贝拉","珈乐","嘉然","乃琳","A-SOUL","【","】","夜谈","小剧场","游戏室","/","直播录像","直播回放","3D","B限",".mp4"," ","团播","！","!","?","？","_","/ASOUL-REC/"] 
         self.Delete_Words = []
         #self.Delete_Words = ["【","】","/","直播录像","直播回放","3D","B限",".mp4"," ","团播"] 
 
@@ -101,29 +100,77 @@ class Jiabu(Base):
             pn+=1
             time.sleep(1)
 
-class Record_Info:
-    def _down_vid(self,url:str,timescale:list):
-        Parse = requests.post("http://localhost:4400/Parse",json={"url":url}).json()
-        Uniq_Id = requests.post("http://localhost:4400/Seek",json={"Start_Time":timescale[0],"End_Time":timescale[1],
-        "url":Parse["Download_Url"],"Save_Name":Parse["Save_Name"],"Args":Parse["Args"]}).text
-        while True:
-            Progresses = requests.get(f"http://localhost:4400/Progress").json()[Uniq_Id]
-            Finished = True
-            for thread_item in Progresses:
-                if thread_item["Running"] != 3:
-                    Finished = False
-            if Finished: return True
-    
-    def _Record_op(self,path:str):
-        pass
+class Download:
+    def __init__(self,url:str,save_name:str):
+        save_name = base64.b64encode(save_name.encode("utf-8")).decode("utf-8")+".mp4"
+        if "asoul-rec.com" in url: 
+            url += "?raw"
+            url = urllib.parse.quote(url,safe="%/:=&?~#+!$,;'@()*[]")
+            self.download(save_name,url,"")
 
-    def _Record_Continus_Frame(self,path):
-        pass
+        if "bilibili.com" in url:
+            header = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:96.0) Gecko/20100101 Firefox/96.0"}
+            args = ' --referer="https://www.bilibili.com" --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/74.0" '
+            bv = url.split("/")[-1]
+            for item in requests.get(f"https://api.bilibili.com/x/web-interface/view?bvid={bv}",headers=header).json()["data"]["pages"]:
+                if "弹幕" not in item["part"]:
+                    playurl = requests.get(f"https://api.bilibili.com/x/player/playurl?bvid={bv}&cid={item['cid']}&otype=json&&platform=html5&high_quality=0",headers=header).json()["data"]["durl"][0]["url"]
+                    self.download(save_name,playurl,args)
+
+    def download(self,name,url,args,path:str="."):
+        os.system(f'aria2c {args} -c -s16 -x16 -k1M -o "{name}" -d {path} "{url}"')
+        ps.main.HashListGen().SlpitSingleVideo(f"{path}/{name}")
+
 
 def do_sync():
     a,b,c = Jiabu(),Official(),Naifen()
-    a.Generate_All_Info(),b.Generate_All_Info(),c.Generate_All_Info()
-    a._save_json(),b._save_json(),c._save_json()
+    b.Generate_All_Info(),c.Generate_All_Info()
+    b._save_json(),c._save_json()
+
+def Actions_Prepare():
+    # Make Empty Alpha If First Time
+    os.system("sudo apt install aria2c")
+    try:
+        Down_Url = requests.get("https://api.github.com/repos/A-Soul-Database/Source-Sync/releases/latest").json()["assets"][0]["browser_download_url"]
+        with closing(requests.get(Down_Url)) as r:
+            chunk_size = 10240
+            with open("Alphas.zip","wb") as f:
+                for chunk in r.iter_content(chunk_size=chunk_size):
+                    f.write(chunk)
+        Alphas = ZipFile("Alphas.zip")
+        Alphas.extractall("./")
+        return json.loads(open("Alphas/Finished.json","r").read()),json.loads(open("Alphas/Error.json","r").read())
+
+    except:
+        os.mkdir("Alphas")
+        alpha = "1234567890qwertyuioplkjhgfdsazxcvbnm"
+        [open(f"Alphas/{fn}.json","w",encoding="utf-8").write("{}") for fn in alpha]
+        return [],[]
 
 if __name__ == "__main__":
     do_sync()
+    finished , error = Actions_Prepare()
+    List_Json = [fn for fn in os.listdir(".") if fn.endswith(".SourceList")]
+    all_Json = []
+    for item in List_Json:
+        with open(item,"r",encoding="utf-8") as f:
+            all_Json += json.load(f)
+    for item in all_Json:
+        if finished.count(item["title"]) == 0:
+            try:
+                Download(item["url"],item["url"])
+                finished.append(item["url"])
+            except: error.append(item["url"])
+
+    open("Alphas/Finished.json","w",encoding="utf-8").write(json.dumps(finished,ensure_ascii=False,indent=4))
+    open("Alphas/Error.json","w",encoding="utf-8").write(json.dumps(error,ensure_ascii=False,indent=4))
+    env_file = os.getenv('GITHUB_ENV')
+    times = time.time()
+    with open(env_file, "a") as f:
+        f.write(f"Version={times}")
+        f.write("\n")
+        f.write(f"Tags={times}")
+    with ZipFile("Alphas.zip","w") as zip:
+        for i in os.walk("./Alphas"):
+            for j in i[2]:
+                zip.write(i[0]+"/"+j)
