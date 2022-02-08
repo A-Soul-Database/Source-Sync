@@ -119,7 +119,7 @@ class Download:
 
     def download(self,name,url,args,path:str="."):
         os.system(f'aria2c {args} -c -s16 -x16 -k1M -o "full_{name}" -d {path} "{url}"')
-        os.system(f"ffmpeg -i full_{name} -b:v 400k -s 640x360 {name}") #compress
+        os.system(f"ffmpeg -i full_{name} -t 1200 -b:v 400k -s 640x360 {name}") #compress
         ps.main.HashListGen().SlpitSingleVideo(f"{path}/{name}")
         os.remove(f"{path}/{name}")
         os.remove(f"{path}/full_{name}")
