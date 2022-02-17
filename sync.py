@@ -9,11 +9,11 @@ import base64
 import urllib.parse
 from zipfile import ZipFile
 from contextlib import closing
+from threading import Thread
 
 Config = {
     "Sources":["Jiabu","Naifen","Ofiicial"]
 }
-
 
 # AnalySis
 class Base:
@@ -156,6 +156,7 @@ if __name__ == "__main__":
     finished , error = Actions_Prepare()
     List_Json = [fn for fn in os.listdir(".") if fn.endswith(".SourceList")]
     all_Json = []
+    n = 0
     for item in List_Json:
         with open(item,"r",encoding="utf-8") as f:
             all_Json += json.load(f)
@@ -164,9 +165,10 @@ if __name__ == "__main__":
             try:
                 Download(item["url"],item["url"])
                 finished.append(item["url"])
-                n+=1
             except: error.append(item["url"])
-
+            n+=1
+        if n > 25: break
+        
     open("Alphas/Finished.json","w",encoding="utf-8").write(json.dumps(finished,ensure_ascii=False,indent=4))
     open("Alphas/Error.json","w",encoding="utf-8").write(json.dumps(error,ensure_ascii=False,indent=4))
     env_file = os.getenv('GITHUB_ENV')
