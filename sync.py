@@ -128,7 +128,8 @@ class Download:
 def do_sync():
     a,b,c = Jiabu(),Official(),Naifen()
     b.Generate_All_Info(),c.Generate_All_Info()
-    b._save_json()#,c._save_json()
+    #b._save_json()#,
+    c._save_json()
 
 def Actions_Prepare():
     # Make Empty Alpha If First Time
