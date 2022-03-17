@@ -1,0 +1,25 @@
+{
+    "2022.02.23 乃琳 手可摘星辰~.mp4":{
+        "Base":"BV1NL411T7M7",
+        "Url":"https://asoul1.asoul-rec.com/ASOUL-REC-%E4%BA%8C%E5%91%A8%E5%B9%B4/2022.02.23%20%E4%B9%83%E7%90%B3%20%E6%89%8B%E5%8F%AF%E6%91%98%E6%98%9F%E8%BE%B0~.mp4",
+        "Time":-3.2
+    },
+    "BV1V3411j7GW":{
+        "Base":"BV1NL411T7M7",
+        "Url":"https://www.bilibili.com/video/BV1V3411j7GW",
+        "Time":2.8
+    },
+
+    "BV1NL411T7M7":[
+        {
+            "Sourcer":"Knaifen",
+            "Url":"https://asoul1.asoul-rec.com/ASOUL-REC-%E4%BA%8C%E5%91%A8%E5%B9%B4/2022.02.23%20%E4%B9%83%E7%90%B3%20%E6%89%8B%E5%8F%AF%E6%91%98%E6%98%9F%E8%BE%B0~.mp4",
+            "Time":-3.2
+        },
+        {
+            "Sourcer":"Official",
+            "Url":"https://www.bilibili.com/video/BV1V3411j7GW",
+            "Time":2.8
+        }
+    ]
+}
