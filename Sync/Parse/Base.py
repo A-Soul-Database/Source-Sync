@@ -16,3 +16,7 @@ class BaseModel:
         # Name 十分重要,它将作为主键在Sources中呈现,所以如果是BiliBili,建议使用Bv
         # Url 可以不是播放链接,只要是URI即可(因为部分可能存在Token或者Expire限制),在解析具体某个元素时会获得播放链接
         ...
+
+    def Change_Url(self,url):
+        # 改变Self的Url
+        self.Acquire_Url = url

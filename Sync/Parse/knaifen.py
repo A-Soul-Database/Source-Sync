@@ -13,7 +13,7 @@ class knaifen(Base.BaseModel):
     def Parse_Url(self) -> None:
         r = requests.get(self.Acquire_Url)
         r.encoding = 'utf-8'
-        try: self.Download_Url = r.text.split('new Artplayer(')[1].split("url: '")[1].split("',")[0]
+        try: self.Download_Url , self.Download_Url_Args = r.text.split('new Artplayer(')[1].split("url: '")[1].split("',")[0] , ""
         except: self.Download_Url = ""
 
     def Lister(self):
@@ -23,12 +23,12 @@ class knaifen(Base.BaseModel):
             l = requests.get(url)
             l.encoding = 'utf-8'
             _list = etree.HTML(l.text).xpath('//a[@class="item"]/@href')
-            return [url + i for i in _list]
+            return [f"{url}/{i.split('/')[-1]}" for i in _list] # 奶粉的路径为相对路径,应该为Host+Path
         
         Record_Dict_Url , Record_Item_UrI, Record_Item_URL = ["https://asoul1.asoul-rec.com/ASOUL-REC-一周年","https://asoul1.asoul-rec.com/ASOUL-REC-二周年"] , [], []
 
         for k in Record_Dict_Url: Record_Item_UrI.extend(Get_List(k))
-        
-        for _k in Record_Item_UrI: _k in [".mp4",".flv",".mov"] and Record_Item_URL.append({'Name':_k.split("/")[-1].split(".")[0],'Url':_k})
+
+        for _k in Record_Item_UrI: _k.split(".")[-1] in ["mp4","flv","mov"] and Record_Item_URL.append({'Name':_k.split("/")[-1],'Url':_k})
 
         return Record_Item_URL # 返回列表

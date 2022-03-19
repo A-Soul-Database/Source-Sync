@@ -44,7 +44,7 @@ class Search:
         """
         result = {}
         to_search_hash = imagehash.phash(Image.open(f'{image}'),hash_size=Config["Hash_Size"]).__str__()
-        hashinfo = json.loads(open(f"./Detect/Alphas/{to_search_hash[:1]}.json","r").read())
+        hashinfo = json.loads(open(f"./Sync/Detect/Alphas/{to_search_hash[:1]}.json","r").read())
         for i in hashinfo:
             distancse = int(distance.hamming(to_search_hash,i))
             if distancse < Config["Search_Distance"]:
@@ -53,7 +53,16 @@ class Search:
                     break
         
         result= sorted(result.items(), key=lambda d:d[1],reverse=True)
-        return list(dict(result).items())[0] #只返回第一个
+        try:
+    
+            result,confidence = list(dict(result).items())[0][0],list(dict(result).items())[0][1]
+            return {"bv":result.split("-")[0] if "-" in result else result.split(",")[0],
+            "time":float(result.split(",")[1]),"p":"1" if "-" not in result else result.split("-")[-1].split(",")[0],
+            "confidence":float(confidence.split(":")[1])}
+        except:
+            return {"bv":"","time":0.0,"p":"","confidence":0.0}
+        # 只返回第一个 返回实例: BVxxxxx-2,123.0 / BVxxxx,123
+        # Bv号-分P,时间点
 
 def Do_Detect(url,Args,Secs:int=0):
 

@@ -1,4 +1,4 @@
 from . import knaifen
 from . import bilibili
 
-Lister = [knaifen.knaifen]
+Lister = [knaifen.knaifen,bilibili.Official]
