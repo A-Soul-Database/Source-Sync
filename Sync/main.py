@@ -29,7 +29,7 @@ def Save_Sources():
 class Sec_Math:
     # 方差, 随机数等方法
     
-    def Random(All_Num:int=20,Range:list=[1200,2400])->list:
+    def Random(All_Num:int=10,Range:list=[1200,2400])->list:
         # 随机生成All_Num个随机数, 且范围在Range中
         # Op不会多于20分钟,所以Range取20-50分钟最佳
         # 时间过久需要考虑分P问题
@@ -65,5 +65,5 @@ class Sec_Math:
 
         for i in Data: tmp.append(math.pow(i[0]-i[1]["time"]-Offset,2)) # 平方差
         Standerd_Diviation =  round(math.sqrt(sum(tmp)/len(tmp)),2) # 标准差
-        if Standerd_Diviation >10 : return {"signal":False,"Error":"Standerd_Diviation_Too_Large","Offset":Minimal_Abs_Offset,"Standerd_Diviation":Standerd_Diviation,"BV":Data[0][1]["bv"]} # 如果标准差大于10,返回最小偏移量
+        if Standerd_Diviation >10 : return {"signal":True,"Error":"Standerd_Diviation_Too_Large","Offset":Minimal_Abs_Offset,"Standerd_Diviation":Standerd_Diviation,"BV":Data[0][1]["bv"]} # 如果标准差大于10,返回最小偏移量
         return {"signal":True,"Offset":Offset,"Standerd_Diviation":Standerd_Diviation,"BV":Data[0][1]["bv"]}
