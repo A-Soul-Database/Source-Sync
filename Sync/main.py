@@ -29,7 +29,7 @@ def Save_Sources():
 class Sec_Math:
     # 方差, 随机数等方法
     
-    def Random(All_Num:int=10,Range:list=[1200,3000])->list:
+    def Random(All_Num:int=20,Range:list=[1200,2400])->list:
         # 随机生成All_Num个随机数, 且范围在Range中
         # Op不会多于20分钟,所以Range取20-50分钟最佳
         # 时间过久需要考虑分P问题
@@ -53,10 +53,17 @@ class Sec_Math:
             Alter_Time = i[0] # 这个是其他源的时间,是随机生成的
             Offset.append(Alter_Time - i[1]["time"]) # 其他源减去主键源
         if len(Offset) ==0 : return {"signal":False,"Error":"Offset Empty"}
-        Minimal_Offset = min([abs(i) for i in Offset])
+        
+        if len(Offset)> 2:
+            Biggest_Offset,Minimal_Offset = max(Offset),min(Offset)
+            Offset.remove(Biggest_Offset)
+            Offset.remove(Minimal_Offset)
+            # 如果有大于2个值,则去掉最大值和最小值
+        
+        Minimal_Abs_Offset = min([abs(i) for i in Offset])
         Offset = round(sum(Offset)/len(Offset),2) #平均偏移量
 
         for i in Data: tmp.append(math.pow(i[0]-i[1]["time"]-Offset,2)) # 平方差
         Standerd_Diviation =  round(math.sqrt(sum(tmp)/len(tmp)),2) # 标准差
-        if Standerd_Diviation >10 : return {"signal":True,"Offset":Minimal_Offset,"Standerd_Diviation":Standerd_Diviation,"BV":Data[0][1]["bv"]} # 如果标准差大于10,返回最小偏移量
+        if Standerd_Diviation >10 : return {"signal":False,"Error":"Standerd_Diviation_Too_Large","Offset":Minimal_Abs_Offset,"Standerd_Diviation":Standerd_Diviation,"BV":Data[0][1]["bv"]} # 如果标准差大于10,返回最小偏移量
         return {"signal":True,"Offset":Offset,"Standerd_Diviation":Standerd_Diviation,"BV":Data[0][1]["bv"]}

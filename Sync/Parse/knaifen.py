@@ -29,6 +29,11 @@ class knaifen(Base.BaseModel):
 
         for k in Record_Dict_Url: Record_Item_UrI.extend(Get_List(k))
 
-        for _k in Record_Item_UrI: _k.split(".")[-1] in ["mp4","flv","mov"] and Record_Item_URL.append({'Name':_k.split("/")[-1],'Url':_k})
+        #for _k in Record_Item_UrI: (_k.split(".")[-1] in ["mp4","flv","mov"])and Record_Item_URL.append({'Name':_k.split("/")[-1],'Url':_k})
+        # 因为Asdb暂时没有做20年以前的视频,所以暂时不加进去
+        for _k in Record_Item_UrI: 
+            if  (_k.split(".")[-1] in ["mp4","flv","mov"]):
+                if "2020" not in _k.split("/")[-1]:
+                    Record_Item_URL.append({'Name':_k.split("/")[-1],'Url':_k})
 
         return Record_Item_URL # 返回列表
