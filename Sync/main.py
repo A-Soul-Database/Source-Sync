@@ -2,6 +2,7 @@ import json
 import random
 import math
 import os
+import statistics
 
 Sources = json.loads(open("./sources.json","r",encoding="utf-8").read()) if os.path.exists("./sources.json") else {}
 
@@ -18,7 +19,7 @@ def Add_Item(Base:str,Source_Name:str,Url:str,Sourcer:str,Offset:float)->bool:
         if not Sources.get(Base):
             Sources[Base] = []
         Sources[Base].append({"Sourcer":Sourcer,"Url":Url,"Offset":Offset})
-        Sources.update({Source_Name:{"Base":Base,"Url":Url,"Offset":Offset}})
+        #Sources.update({Source_Name:{"Base":Base,"Url":Url,"Offset":Offset}})
         return True
     except: return False
 
@@ -35,10 +36,9 @@ class Sec_Math:
         # 时间过久需要考虑分P问题
         return [random.randint(Range[0],Range[1]) for i in range(All_Num)]
 
-    def Standerd_Diviation(Data:list)->float:
+    def Shapiro(Data:list)->float:
         Data = list(Data)
-        print(Data)
-        # 计算标准差
+        # 正态分布的最大值 - 样本越多越接近正确值
         if len(set([i[1]["bv"] for i in Data])) != 1: return {"signal":False,"Error":"Bv Not Same"}
         # 如果同一录播出现主键Bv不同的情况,大概率G了
 
@@ -46,9 +46,8 @@ class Sec_Math:
         # 1. 相似场景(很少出现)
         # 2. 主键未收录(对于某些抖音视频/各种原因没收录的情况) 会导致搜索到相似的录播中
         # 主键未收录还可能返回空值
-        # 标准差就是为了尽量减少这种问题出现的
 
-        Offset,tmp = [] , []
+        Offset = []
         for i in Data:
             Alter_Time = i[0] # 这个是其他源的时间,是随机生成的
             Offset.append(Alter_Time - i[1]["time"]) # 其他源减去主键源
@@ -59,11 +58,9 @@ class Sec_Math:
             Offset.remove(Biggest_Offset)
             Offset.remove(Minimal_Offset)
             # 如果有大于2个值,则去掉最大值和最小值
-        
-        Minimal_Abs_Offset = min([abs(i) for i in Offset])
-        Offset = round(sum(Offset)/len(Offset),2) #平均偏移量
+        sigma = statistics.stdev(Offset)
+        mean = statistics.mean(Offset)
+        n = statistics.NormalDist(mean,sigma)
 
-        for i in Data: tmp.append(math.pow(i[0]-i[1]["time"]-Offset,2)) # 平方差
-        Standerd_Diviation =  round(math.sqrt(sum(tmp)/len(tmp)),2) # 标准差
-        if Standerd_Diviation >10 : return {"signal":True,"Error":"Standerd_Diviation_Too_Large","Offset":Minimal_Abs_Offset,"Standerd_Diviation":Standerd_Diviation,"BV":Data[0][1]["bv"]} # 如果标准差大于10,返回最小偏移量
-        return {"signal":True,"Offset":Offset,"Standerd_Diviation":Standerd_Diviation,"BV":Data[0][1]["bv"]}
+        #if Shapiro >10 : return {"signal":True,"Error":"Shapiro_Too_Large","Offset":Minimal_Abs_Offset,"Shapiro":Shapiro,"BV":Data[0][1]["bv"]} # 如果标准差大于10,返回最小偏移量
+        return {"signal":True,"Offset":n.inv_cdf(0.5),"BV":Data[0][1]["bv"]}

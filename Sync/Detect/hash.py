@@ -7,6 +7,7 @@ from PIL import Image
 import distance
 import json
 import os
+import subprocess
 
 Config = {
     "Hash_Size":12,
@@ -68,7 +69,7 @@ def Do_Detect(url,Args,Secs:int=0):
 
     def Screenshot(Down_Url,args,Secs):
         # 指定某一秒截图
-        return os.system('ffmpeg -y {} -ss {}  -i "{}"  -vframes 1 output.png'.format(args,Secs,Down_Url))
+        return subprocess.Popen('ffmpeg -y {} -ss {}  -i "{}"  -vframes 1 output.png'.format(args,Secs,Down_Url),shell=True)
     
     def Acquire_Source():
         # 根据某张图片搜索视频及秒数

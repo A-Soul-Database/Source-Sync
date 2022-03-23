@@ -1,15 +1,16 @@
 import Sync
 import time
+
 # Do WorkFlow :)
 Start_Time = time.time()
 print(f'Start Time At : {time.strftime("%Y-%m-%d %X",time.localtime())}')
 
+
 for _i in Sync.Parse.Lister: 
     # 每个视频源都需要实现这样的方法,便于调用
-    tmp = _i() # 创建源实例
+    tmp = _i("knaifen.workers.dev") # 创建源实例
     print(f"Start Sync For {tmp.__Sourcer__()}")
     Roll_List = tmp.Lister() # 获取数据源信息
-    #Roll_List = Roll_List[0:2]
     for i in Roll_List:
         if Sync.main.Search(i["Name"]) is not None: continue #若已经校准,则跳过
         else:
@@ -29,9 +30,7 @@ for _i in Sync.Parse.Lister:
                         continue
                     Result.append(Detect)
                     # 将结果写入list中
-
-                result = Sync.main.Sec_Math.Standerd_Diviation(zip(Time_Range,Result))
-                print(result)
+                result = Sync.main.Sec_Math.Shapiro(zip(Time_Range,Result))
                 #将Time_Range和Result组合
                 # [(1235, {'bv': 'bv123','time':1237}), ...
 
@@ -39,5 +38,6 @@ for _i in Sync.Parse.Lister:
                 # 将结果写入数据表中
                 time.sleep(1)
         Sync.main.Save_Sources() # 保存数据
+        break ######################################################
 
 print(f'End Time At : {time.strftime("%Y-%m-%d %X",time.localtime())} \n Total Time : {time.time()-Start_Time} Seconds')
