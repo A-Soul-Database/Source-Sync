@@ -6,9 +6,8 @@ from lxml import etree
 
 class knaifen(Base.BaseModel):
 
-    def __init__(self,url:str="knaifen.workers.dev") -> None:
-        super().__init__(url)
-        assert ("asoul-rec.com" in self.Acquire_Url) or ("knaifen.workers.dev" in self.Acquire_Url), "The url is not supported"
+    def __init__(self) -> None:
+        ...
 
     def Parse_Url(self) -> None:
         r = requests.get(self.Acquire_Url)
@@ -37,3 +36,10 @@ class knaifen(Base.BaseModel):
                     Record_Item_URL.append({'Name':_k.split("/")[-1],'Url':_k})
 
         return Record_Item_URL # 返回列表
+
+    def Change_Url(self, url):
+        assert ("asoul-rec.com" in url) or ("knaifen.workers.dev" in url), "The url is not supported"
+        return super().Change_Url(url)
+
+    def demo(self):
+        return self.Lister()[234:235] #随机抽一个看看

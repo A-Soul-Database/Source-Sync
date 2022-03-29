@@ -1,6 +1,6 @@
 class BaseModel:
-    def __init__(self,Acquire_Url):
-        self.Acquire_Url = Acquire_Url
+    def __init__(self):
+        ...
 
     def Parse_Url(self):
         # 获取可供ffmpeg使用的地址

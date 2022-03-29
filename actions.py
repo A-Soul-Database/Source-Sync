@@ -1,43 +1,36 @@
 import Sync
 import time
 
-# Do WorkFlow :)
-Start_Time = time.time()
-print(f'Start Time At : {time.strftime("%Y-%m-%d %X",time.localtime())}')
+RCD = Sync.main.RCD() # 创建一个随机连续性检测对象
 
+CONFIG = {
+    "Clip_Num":40, #单个视频分段次数,每段都会检测
+    "Random_Range":[1000,2400], #随机视频分段时间范围
+    "Consistenet_Duration":10, #每个分段持续时间(单位:秒)
+}
 
-for _i in Sync.Parse.Lister: 
-    # 每个视频源都需要实现这样的方法,便于调用
-    tmp = _i("knaifen.workers.dev") # 创建源实例
-    print(f"Start Sync For {tmp.__Sourcer__()}")
-    Roll_List = tmp.Lister() # 获取数据源信息
-    for i in Roll_List:
-        if Sync.main.Search(i["Name"]) is not None: continue #若已经校准,则跳过
-        else:
+for Sourcer in Sync.Parse.Lister:
+    Sourcer_Instance = Sourcer()
+    print("Start Sync For Sourcer: {}.".format(Sourcer_Instance.__Sourcer__()))
+    Lists = Sourcer_Instance.Lister()
+    for _item in Lists:
+        print(_item)
+        Sourcer_Instance.Change_Url(_item["Url"]) , Sourcer_Instance.Parse_Url() # 改变Url并解析
+        Detect_Result = []
 
-            tmp.Change_Url(i["Url"]) # 改变源的Url
-            tmp.Parse_Url()
-
-            if tmp.Download_Url != "":
-                Time_Range = Sync.main.Sec_Math.Random() # 随机生成多个时间戳
-                Result = []
-
-                for time_item in Time_Range:
-                    try:
-                        Detect = Sync.Detect.hash.Do_Detect(tmp.Download_Url,tmp.Download_Url_Args,time_item)
-                    except:
-                        # 可能网络异常
-                        continue
-                    Result.append(Detect)
-                    # 将结果写入list中
-                result = Sync.main.Sec_Math.Shapiro(zip(Time_Range,Result))
-                #将Time_Range和Result组合
-                # [(1235, {'bv': 'bv123','time':1237}), ...
-
-                if result["signal"]:Sync.main.Add_Item(result["BV"],i["Name"],tmp.Acquire_Url,tmp.__Sourcer__(),result["Offset"]) 
-                # 将结果写入数据表中
-                time.sleep(1)
-        Sync.main.Save_Sources() # 保存数据
-        break ######################################################
-
-print(f'End Time At : {time.strftime("%Y-%m-%d %X",time.localtime())} \n Total Time : {time.time()-Start_Time} Seconds')
+        for Single_Split_Clip_Range in RCD.Random_Clips(
+            Clip_Num=CONFIG["Clip_Num"],
+            Random_Range=CONFIG["Random_Range"],
+            Consistenet_Duration=CONFIG["Consistenet_Duration"]
+        ):
+            result = Sync.Detect.hash.Do_Detect(
+                url = Sourcer_Instance.Download_Url,
+                Args = Sourcer_Instance.Download_Url_Args,
+                Time_Scales = Single_Split_Clip_Range
+            )
+            a = RCD.Caculate(result,Single_Split_Clip_Range)
+            Detect_Result.append(a)
+            print(a)
+            time.sleep(0.5)
+        RCD.Generate_Single_Result(Detect_Result)
+        break
