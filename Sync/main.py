@@ -2,6 +2,7 @@ import json
 import random
 import os
 import statistics
+import Sync
 
 Sources = json.loads(open("./sources.json","r",encoding="utf-8").read()) if os.path.exists("./sources.json") else {}
 
@@ -26,44 +27,85 @@ def Save_Sources():
     # 保存源
     open("./sources.json","w",encoding="utf-8").write(json.dumps(Sources,indent=4,ensure_ascii=False))
 
+def Install_Core():
+    # 安装识别库
+    ...
 
 class RCD:
     # RCD: Randomly Consistent Detection 随机持续性检测
     # 随机持续性检测可用于对源和时间同步
     # 随机选取片段比较,片段间隔为1s
     
-    def Random_Clips(self,Clip_Num:int=3,Random_Range:list=[1200,2400],Consistenet_Duration:int=60)->list:
-        # 随机返回Clip_Num个时间段 每个时间段的秒数在Random_Range中,每个片段持续Consistenet_Duration 秒
-        Return_Clips = []
-        for i in range(Clip_Num):
-            time_scale = random.randint(Random_Range[0],Random_Range[-1])
-            Return_Clips.append([time_scale,time_scale+Consistenet_Duration])
-        return Return_Clips
+    def Random_Clips(self,Random_Range:list=[1200,2400],Consistenet_Duration:int=60)->list:
+        # 随机返回一个时间段 时间段的秒数在Random_Range中,片段持续Consistenet_Duration 秒
+        time_scale = random.randint(Random_Range[0],Random_Range[-1])
+        return [time_scale,time_scale+Consistenet_Duration]
+
     
 
-    def Caculate(self,Detected_Data:list,Random_Origin_List:list)->list:
-        # 计算平均 Offset 并返回
-        Offset = []
-        bvs = set([fn["bv"] for fn in Detected_Data if fn["signal"]])
-        print(bvs)
-        if len(bvs) >1 : return {"signal":False} #如果Bv不同,则认为该片段无效
+    def Caculate(self,Detected_Data:list,Consist_Range:list)->list:
+        # 计算Offset并返回
+        bvs = set( [fn["bv"] for fn in Detected_Data if fn["signal"]] )
+        if len(bvs) >1 or len(bvs) == 0: return {"signal":False} #如果Bv不同或为空,则认为该片段无效
         bv = list(bvs)[0] # 取第一个Bv为检测bv
-        Detect_Times = set([fn["time"] for fn in Detected_Data if fn["signal"]]) #检测出的时间(按照大小排序)
-        Have_Times = [fn for fn in range(Random_Origin_List[0],Random_Origin_List[-1])] # 把给定的范围转换为每一秒的时间点
-        for _item in list(zip(Detect_Times,Have_Times)): Offset.append(_item[1]-_item[0]) # 计算每一秒对应的时间差
-        # 计算对应的正态分布的最大数目
-        if len(Offset)> 5: Offset.remove(max(Offset)) , Offset.remove(min(Offset)) # 去除最大值和最小值
-        return {"signal":True,"Offset":self.Caculate_Normal(Offset),"bv":bv}
 
-    def Generate_Single_Result(self,Data:list):
-        # 通过检测结果进行正态性检验
-        Offsets = [fn["Offset"] for fn in Data if fn["signal"]]
-        if len(Offsets) > 5: Offsets.remove(max(Offsets)) , Offsets.remove(min(Offsets)) # 去除最大值和最小值
-        return {"bv":"bv","Offset":self.Caculate_Normal(Offsets)}
+        Consist_Range_mean= statistics.mean(Consist_Range) # 时间段平均值
+        Offset = [Consist_Range_mean-fn["time"] for fn in Detected_Data if fn["signal"]]
+        Normal = self.Caculate_Normal(Offset)
+        return {"signal":not (type(Normal)==bool),"Offset":Normal,"bv":bv}
+
+    def Is_Constitent(self,Datas,Legnth_Of_Clip,Confidence:float=0.6)->bool:
+        # 检测是否连续 置信度为Confidence        
+        Detected_Times = [] # 检测出的时间(按照大小排序)
+        for fn in Datas:
+            if fn["signal"]:Detected_Times.append(fn["time"])
+        valuable_length = len(Detected_Times)
+        if len(Detected_Times) < 3: return False,[] #避免卡死
+        if valuable_length < Legnth_Of_Clip*Confidence : return False , [] # 如果数据不足,则认为不连续
+        a=sorted(Detected_Times)
+        max_l=[]
+        i=0
+        while i<len(a)-1:
+            l=list([a[i]])
+            for j in range(i+1,len(a)):
+                if a[j]-l[-1]<=3:
+                    i+=1
+                    l.append(a[j])
+                else:
+                    i = j
+                    break
+            if len(l)>len(max_l): max_l=l.copy()
+            l.clear()
+        print(valuable_length,len(max_l),max_l)
+        if valuable_length*Confidence > len(max_l): return False,max_l
+        else: return True , max_l
 
     def Caculate_Normal(self,Datas:list):
-        # 计算正态分布中间最大值
+        # 计算正态分布置信度为50%时的值
+        if len(Datas)<2: return False
         Offset_mean = statistics.mean(Datas)
         Offset_std = statistics.stdev(Datas)
+        if Offset_std <0 or Offset_std == 0: return False
         Offset_Normal = statistics.NormalDist(Offset_mean,Offset_std)
         return Offset_Normal.inv_cdf(0.5)
+
+def Do_Sync(CONFIG:dict,D_Url:str,Args:str):
+    # 执行同步
+    # 首先检测是否同步,若同步:则返回Offset和Bv号
+    # 为了防止未收录导致死循环,设置最大检测次数 CONFIG["Max_Detect_Times"]
+    # 若检测次数超过,则返回False, CONFIG 来源为actions.py
+    RCD_Obj = RCD()
+    Roll_Nums = 0
+    while Roll_Nums < CONFIG["Max_Rool_Num"]:
+        Random_Time_Scale = RCD_Obj.Random_Clips(Random_Range=CONFIG["Random_Range"],Consistenet_Duration=CONFIG["Consistenet_Duration"])
+           #随机一个时间段
+        This_Result = Sync.Detect.hash.Do_Detect(url=D_Url,
+            Args = Args ,Time_Scales = Random_Time_Scale)
+        Is_Consistent = RCD_Obj.Is_Constitent(Datas=This_Result,Legnth_Of_Clip=CONFIG["Consistenet_Duration"])
+        if Is_Consistent[0]:
+            return RCD_Obj.Caculate(Detected_Data=This_Result,Consist_Range=Random_Time_Scale)
+        else:
+            Roll_Nums+=1
+            continue
+
+    return False

@@ -12,9 +12,9 @@ import time
 import os
 
 Config = {
-    "Hash_Size":12,
-    "Search_Distance":25,
-    "Confidence_Distance":10,
+    "Hash_Size":12, # 哈希值长度(改了会导致之前的库失效)
+    "Search_Distance":15, # 低于这个长度会索引
+    "Confidence_Distance":5, # 小于这个长度直接返回 (被认为是准确的)
 }
 
 
@@ -72,13 +72,14 @@ class Search:
 
 def Do_Detect(url,Args,Time_Scales:list=[],Single_Type_Secs:int=0,Delay:int=0.5,Single_Type:bool=False):
 
+    start_time = time.time()
     def Screenshot(Down_Url,args,Secs):
         # 指定某一秒截图
         return subprocess.Popen('ffmpeg -y {} -ss {}  -i "{}"  -vframes 1 output.png'.format(args,Secs,Down_Url),shell=True)
     
     def Screenshots(Down_url,Args,Time_Scales):
         # 指定某一时间段截图
-        p = subprocess.Popen(f'ffmpeg -y {Args} -ss {Time_Scales[0]} -i "{Down_url}" -to {Time_Scales[1]-Time_Scales[0]} -avoid_negative_ts 1 -c copy "tmp.mp4"',
+        p = subprocess.Popen(f'ffmpeg -y {Args} -ss {Time_Scales[0]} -i "{Down_url}" -to {Time_Scales[1]-Time_Scales[0]} -c copy "tmp.mp4"',shell=True,
             stderr=subprocess.DEVNULL,stdout=subprocess.DEVNULL)
         p.wait()
         return subprocess.Popen('ffmpeg -y -i tmp.mp4 -vf fps=1 out%d.png'
@@ -108,6 +109,7 @@ def Do_Detect(url,Args,Time_Scales:list=[],Single_Type_Secs:int=0,Delay:int=0.5,
     else:
         try:
             Screenshots(url,Args,Time_Scales)
+            print("Downloaded in {} seconds".format(round(time.time()-start_time,2)))
             return Acquire_Source_List()
         except: return {"signal":False} #防止网络错误
 

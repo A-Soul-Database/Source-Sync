@@ -84,8 +84,10 @@ class Normal_Uid(BiliBili):
         return requests.get(f"https://api.bilibili.com/x/web-interface/view?bvid={self.bv}",headers=self.headers).json()["data"]["pages"]
 
 class Record_type1(Normal_Uid):
-    # A-Soul 二创计画\Asoul 录播姬\的解析格式
-    uids = ["547510303","1220802721"]
+    # A-Soul 二创计画\ Asoul 录播姬\ Tony单人可(只有弹幕版本) \
+    # 回梦游仙479  \ 想不出好名zhi \晚贝珈然琳\ 一个魂录播组 \ 明弦正 \ 的解析格式
+    uids = ["547510303","1220802721","32290343",
+        "3512064","85948224","2055198561","1316454367","39742197"]
     def Lister(self):
         All_List , Record_List = [], []
         for i in self.uids: All_List += super().roll_series_list(i)
@@ -93,3 +95,12 @@ class Record_type1(Normal_Uid):
             if "直播录像" in item["Name"]: Record_List.append(item)
         return Record_List
 
+class Record_type2(Normal_Uid):
+    # 北平一个魂儿 的解析格式
+    uids = ["444853351"]
+    def Lister(self):
+        All_List , Record_List = [], []
+        for i in self.uids: All_List += super().roll_series_list(i)
+        for item in All_List:
+            if "录制" in item["Name"]: Record_List.append(item)
+        return Record_List
