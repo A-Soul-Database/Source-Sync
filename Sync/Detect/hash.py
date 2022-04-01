@@ -57,7 +57,6 @@ class Search:
         
         result= sorted(result.items(), key=lambda d:d[1],reverse=True)
         try:
-    
             result,confidence = list(dict(result).items())[0][0],list(dict(result).items())[0][1]
             return {
                 "signal":True,
@@ -105,13 +104,17 @@ def Do_Detect(url,Args,Time_Scales:list=[],Single_Type_Secs:int=0,Delay:int=0.5,
         try:
             Screenshot(url,Args,Single_Type_Secs)
             return Acquire_Source()
-        except: return {"signal":False}
+        except: 
+            Do_Clear()
+            return {"signal":False}
     else:
         try:
             Screenshots(url,Args,Time_Scales)
             print("Downloaded in {} seconds".format(round(time.time()-start_time,2)))
             return Acquire_Source_List()
-        except: return {"signal":False} #防止网络错误
+        except:
+            Do_Clear() 
+            return {"signal":False} #防止网络错误
 
 def Do_Clear():
     # 清理临时文件

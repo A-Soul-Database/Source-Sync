@@ -5,6 +5,7 @@ import statistics
 import Sync
 
 Sources = json.loads(open("./sources.json","r",encoding="utf-8").read()) if os.path.exists("./sources.json") else {}
+not os.path.exists("./Sync/Detect/Alphas") and print("Warning: Detect Alphas Not Found!")
 
 def Search(Name:str):
     # 根据 文件名搜索
@@ -101,6 +102,7 @@ def Do_Sync(CONFIG:dict,D_Url:str,Args:str):
            #随机一个时间段
         This_Result = Sync.Detect.hash.Do_Detect(url=D_Url,
             Args = Args ,Time_Scales = Random_Time_Scale)
+        if type(This_Result)==dict: continue # 检测失败
         Is_Consistent = RCD_Obj.Is_Constitent(Datas=This_Result,Legnth_Of_Clip=CONFIG["Consistenet_Duration"])
         if Is_Consistent[0]:
             return RCD_Obj.Caculate(Detected_Data=This_Result,Consist_Range=Random_Time_Scale)
