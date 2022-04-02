@@ -77,7 +77,7 @@ class RCD:
                     break
             if len(l)>len(max_l): max_l=l.copy()
             l.clear()
-        print(valuable_length,len(max_l),max_l)
+        #print(valuable_length,len(max_l),max_l)
         if valuable_length*Confidence > len(max_l): return False,max_l
         else: return True , max_l
 
@@ -110,4 +110,4 @@ def Do_Sync(CONFIG:dict,D_Url:str,Args:str):
             Roll_Nums+=1
             continue
 
-    return False
+    return {"signal":False}

@@ -110,7 +110,7 @@ def Do_Detect(url,Args,Time_Scales:list=[],Single_Type_Secs:int=0,Delay:int=0.5,
     else:
         try:
             Screenshots(url,Args,Time_Scales)
-            print("Downloaded in {} seconds".format(round(time.time()-start_time,2)))
+            #print("Downloaded in {} seconds".format(round(time.time()-start_time,2)))
             return Acquire_Source_List()
         except:
             Do_Clear() 

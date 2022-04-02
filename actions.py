@@ -14,18 +14,19 @@ for Sourcer in Sync.Parse.Lister:
 
     print("Start Sync For Sourcer: {}.".format(Sourcer_Instance.__Sourcer__()))
 
-    Lists = Sourcer_Instance.Lister()[320:]
+    Lists = Sourcer_Instance.Lister()
     for _item in Lists:
         Start_time = time.time()
         print(_item)
         if Sync.main.Search(_item["Url"]) is not None: continue # 如果检测到,则跳过
 
         Sourcer_Instance.Change_Url(_item["Url"]) , Sourcer_Instance.Parse_Url() # 改变Url并解析
-        Detect_Result = []
 
         info = Sync.main.Do_Sync(CONFIG=CONFIG,D_Url=Sourcer_Instance.Download_Url,Args=Sourcer_Instance.Download_Url_Args)
-
-        Sync.main.Add_Item(Base=info["bv"],Url=_item["Url"],Sourcer=Sourcer_Instance.__Sourcer__(),Offset=info["Offset"])
-        Sync.main.Save_Sources()
+        if info["signal"]:
+            Sync.main.Add_Item(Base=info["bv"],Url=_item["Url"],Source_Name=_item["Name"],Sourcer=Sourcer_Instance.__Sourcer__(),Offset=info["Offset"])
+            Sync.main.Save_Sources()
+        else:
+            print("Sync Failed For {}.".format(_item["Name"]))
         print("Time Cost:",time.time()-Start_time)
 
