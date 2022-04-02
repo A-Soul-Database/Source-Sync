@@ -24,7 +24,7 @@ class knaifen(Base.BaseModel):
             _list = etree.HTML(l.text).xpath('//a[@class="item"]/@href')
             return [f"{url}/{i.split('/')[-1]}" for i in _list] # 奶粉的路径为相对路径,应该为Host+Path
         
-        Record_Dict_Url , Record_Item_UrI, Record_Item_URL = ["https://asoul1.asoul-rec.com/ASOUL-REC-一周年","https://asoul1.asoul-rec.com/ASOUL-REC-二周年"] , [], []
+        Record_Dict_Url , Record_Item_UrI, Record_Item_URL = ["https://asoul.knaifen.workers.dev/ASOUL-REC-一周年","https://asoul.knaifen.workers.dev/ASOUL-REC-二周年"] , [], []
 
         for k in Record_Dict_Url: Record_Item_UrI.extend(Get_List(k))
 
