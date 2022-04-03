@@ -9,6 +9,7 @@ forbidden_urls = json.loads(open("./data/forbidden_urls.json","r",encoding="utf-
 not os.path.exists("./Sync/Detect/Alphas") and print("\n Warning: Detect Alphas Not Found! \n")
 
 def Search(keywords:str):
+    keywords = keywords.split("/")[-1]
     # 根据 文件名搜索
     for _base,_detail in Sources.items():
         if keywords == _base: return _base

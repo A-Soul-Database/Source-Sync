@@ -10,7 +10,6 @@ CONFIG = {
 
 for Sourcer in Sync.Parse.Lister:
     Sourcer_Instance = Sourcer()
-
     print("Start Sync For Sourcer: {}.".format(Sourcer_Instance.__Sourcer__()))
 
     Lists = Sourcer_Instance.Lister()
