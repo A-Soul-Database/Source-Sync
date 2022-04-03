@@ -22,7 +22,6 @@ for Sourcer in Sync.Parse.Lister:
         print(_item)
 
         Sourcer_Instance.Change_Url(_item["Url"]) , Sourcer_Instance.Parse_Url() # 改变Url并解析
-
         info = Sync.main.Do_Sync(CONFIG=CONFIG,D_Url=Sourcer_Instance.Download_Url,Args=Sourcer_Instance.Download_Url_Args)
         if info["signal"]:
             Sync.main.Add_Item(Base=info["bv"],Url=_item["Url"],Source_Name=_item["Name"],Sourcer=Sourcer_Instance.__Sourcer__(),Offset=info["Offset"])

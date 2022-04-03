@@ -5,12 +5,13 @@ from lxml import etree
 
 
 class knaifen(Base.BaseModel):
+    header = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36"}
 
     def __init__(self) -> None:
         ...
 
     def Parse_Url(self) -> None:
-        r = requests.get(self.Acquire_Url)
+        r = requests.get(self.Acquire_Url,headers=self.header,timeout=10)
         r.encoding = 'utf-8'
         try: self.Download_Url , self.Download_Url_Args = r.text.split('new Artplayer(')[1].split("url: '")[1].split("',")[0] , ""
         except: self.Download_Url = ""
