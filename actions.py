@@ -3,7 +3,6 @@ import time
 
 CONFIG = {
     "Max_Rool_Num":10,
-    "Random_Range":[800,2400], #随机视频分段时间范围
     "Consistenet_Duration":20, #每个分段持续时间(单位:秒)
 }
 
@@ -15,10 +14,12 @@ for Sourcer in Sync.Parse.Lister:
     print("Start Sync For Sourcer: {}.".format(Sourcer_Instance.__Sourcer__()))
 
     Lists = Sourcer_Instance.Lister()
+    CONFIG["Random_Range"] = Sourcer_Instance.__get_Random_Range__()
     for _item in Lists:
         Start_time = time.time()
-        print(_item)
         if Sync.main.Search(_item["Url"]) is not None: continue # 如果检测到,则跳过
+        if Sync.main.Is_forbidden(_item["Url"]): continue # 如果为无需检测的,则跳过
+        print(_item)
 
         Sourcer_Instance.Change_Url(_item["Url"]) , Sourcer_Instance.Parse_Url() # 改变Url并解析
 

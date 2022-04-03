@@ -17,23 +17,22 @@ class knaifen(Base.BaseModel):
 
     def Lister(self):
         # 返回Url列表
+        Sourcer = {
+            "21Centry":"https://asoul.knaifen.workers.dev",
+            "OD":"https://asoul1.asoul-rec.com"
+        }
         def Get_List(url):
             # 解析奶粉罐的列表
-            l = requests.get(url)
+            l = requests.get(Sourcer["OD"]+url)
             l.encoding = 'utf-8'
             _list = etree.HTML(l.text).xpath('//a[@class="item"]/@href')
-            return [f"{url}/{i.split('/')[-1]}" for i in _list] # 奶粉的路径为相对路径,应该为Host+Path
+            return [f"{Sourcer['21Centry']}{url}/{i.split('/')[-1]}" for i in _list] # 奶粉的路径为相对路径,应该为Host+Path
         
-        Record_Dict_Url , Record_Item_UrI, Record_Item_URL = ["https://asoul.knaifen.workers.dev/ASOUL-REC-一周年","https://asoul.knaifen.workers.dev/ASOUL-REC-二周年"] , [], []
-
+        Record_Dict_Url , Record_Item_UrI, Record_Item_URL = ["/ASOUL-REC-一周年","/ASOUL-REC-二周年"] , [], []
+        
         for k in Record_Dict_Url: Record_Item_UrI.extend(Get_List(k))
 
-        #for _k in Record_Item_UrI: (_k.split(".")[-1] in ["mp4","flv","mov"])and Record_Item_URL.append({'Name':_k.split("/")[-1],'Url':_k})
-        # 因为Asdb暂时没有做20年以前的视频,所以暂时不加进去
-        for _k in Record_Item_UrI: 
-            if  (_k.split(".")[-1] in ["mp4","flv","mov"]):
-                if "2020" not in _k.split("/")[-1]:
-                    Record_Item_URL.append({'Name':_k.split("/")[-1],'Url':_k})
+        for _k in Record_Item_UrI: (_k.split(".")[-1] in ["mp4","flv","mov"])and Record_Item_URL.append({'Name':_k.split("/")[-1],'Url':_k,'Sourcer':self.__Sourcer__()})
 
         return Record_Item_URL # 返回列表
 
@@ -41,5 +40,8 @@ class knaifen(Base.BaseModel):
         assert ("asoul-rec.com" in url) or ("knaifen.workers.dev" in url), "The url is not supported"
         return super().Change_Url(url)
 
-    def demo(self):
-        return self.Lister()[234:235] #随机抽一个看看
+    def __Sourcer__(self):
+        return "@嘉然小姐的奶粉罐"
+
+    def __get_Random_Range__(self):
+        return [800,2400]

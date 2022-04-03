@@ -53,11 +53,13 @@ class Official(BiliBili):
         time.sleep(0.1)
         _info = requests.get(f"https://api.bilibili.com/x/v2/medialist/resource/list?type=5&oid={oid}&otype=2&biz_id={biz_id}&ps=30",headers=self.headers).json()
         for i in _info["data"]["media_list"]:
-            returns.append({"Name":i["title"],"Url":f"https://www.bilibili.com/{i['bv_id']}"}) # 遍历列表中的元素
+            returns.append({"Name":i["title"],"Url":f"https://www.bilibili.com/{i['bv_id']}",'Sourcer':'Official'}) # 遍历列表中的元素
 
         if _info["data"]["has_more"]:self.roll_series_list(biz_id,_info["data"]["media_list"][-1]["id"],returns) # 如果列表没有循环完毕,则继续循环
         return returns
 
+    def __get_Random_Range__(self):
+        return [1200,2600]
 
 class Normal_Uid(BiliBili):
     # 第三方录播组的账号解决方法
@@ -71,11 +73,11 @@ class Normal_Uid(BiliBili):
         # biz_id:播放列表id type=1时为uid,代表所有投稿视频; type=5时为直播录像,biz_id为合集列表
         ...
     
-    def roll_series_list(self,biz_id:str,oid:str="",returns:list=[]):
+    def roll_series_list(self,biz_id:str,oid:str="",sourcer:str="",returns:list=[]):
         time.sleep(0.1)
         _info = requests.get(f"https://api.bilibili.com/x/v2/medialist/resource/list?type=1&oid={oid}&otype=2&biz_id={biz_id}&ps=30",headers=self.headers).json()
         for i in _info["data"]["media_list"]:
-            returns.append({"Name":i["title"],"Url":f"https://www.bilibili.com/{i['bv_id']}"}) # 遍历列表中的元素
+            returns.append({"Name":i["title"],"Url":f"https://www.bilibili.com/{i['bv_id']}",'Sourcer':sourcer}) # 遍历列表中的元素
         if _info["data"]["has_more"]:self.roll_series_list(biz_id,_info["data"]["media_list"][-1]["id"],returns) # 如果列表没有循环完毕,则继续循环
         return returns
 
@@ -88,19 +90,21 @@ class Record_type1(Normal_Uid):
     # 回梦游仙479  \ 想不出好名zhi \晚贝珈然琳\ 一个魂录播组 \ 明弦正 \ 的解析格式
     uids = ["547510303","1220802721","32290343",
         "3512064","85948224","2055198561","1316454367","39742197"]
+
     def Lister(self):
         All_List , Record_List = [], []
-        for i in self.uids: All_List += super().roll_series_list(i)
+        for i in self.uids: All_List += super().roll_series_list(i,sourcer=i)
         for item in All_List:
             if "直播录像" in item["Name"]: Record_List.append(item)
         return Record_List
+
 
 class Record_type2(Normal_Uid):
     # 北平一个魂儿 的解析格式
     uids = ["444853351"]
     def Lister(self):
         All_List , Record_List = [], []
-        for i in self.uids: All_List += super().roll_series_list(i)
+        for i in self.uids: All_List += super().roll_series_list(i,sourcer=i)
         for item in All_List:
             if "录制" in item["Name"]: Record_List.append(item)
         return Record_List

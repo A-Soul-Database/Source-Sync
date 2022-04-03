@@ -1,4 +1,4 @@
 from . import knaifen
 from . import bilibili
-from . import Base
-Lister = [knaifen.knaifen]
+
+Lister = [knaifen.knaifen,bilibili.Official,bilibili.Record_type1,bilibili.Record_type2]

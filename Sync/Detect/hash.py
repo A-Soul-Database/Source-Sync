@@ -2,7 +2,6 @@
 利用cv每隔一定时间截取一帧并保存
 From https://github.com/A-Soul-Database/PhotoSearch/commit/1e6e72c3f9e7a26e8652ac21bb4fe26eaf64ae64
 """
-from sys import stderr
 import imagehash
 from PIL import Image
 import distance

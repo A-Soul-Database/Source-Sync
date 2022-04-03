@@ -4,13 +4,21 @@ import os
 import statistics
 import Sync
 
-Sources = json.loads(open("./sources.json","r",encoding="utf-8").read()) if os.path.exists("./sources.json") else {}
-not os.path.exists("./Sync/Detect/Alphas") and print("Warning: Detect Alphas Not Found!")
+Sources = json.loads(open("./data/sources.json","r",encoding="utf-8").read()) if os.path.exists("./data/sources.json") else {}
+forbidden_urls = json.loads(open("./data/forbidden_urls.json","r",encoding="utf-8").read()) if os.path.exists("./data/forbidden_urls.json") else {}
+not os.path.exists("./Sync/Detect/Alphas") and print("\n Warning: Detect Alphas Not Found! \n")
 
-def Search(Name:str):
+def Search(keywords:str):
     # 根据 文件名搜索
-    return Sources.get(Name)
+    for _base,_detail in Sources.items():
+        if keywords == _base: return _base
+        for _item in _detail:
+            if keywords == _item["Name"] or keywords == _item["Url"] : return _base
 
+def Is_forbidden(Url:str):
+    # 检测是否被禁止
+    for i in forbidden_urls:
+        if i in Url: return True
 
 def Add_Item(Base:str,Source_Name:str,Url:str,Sourcer:str,Offset:float)->bool:
     # 添加项目
@@ -19,14 +27,14 @@ def Add_Item(Base:str,Source_Name:str,Url:str,Sourcer:str,Offset:float)->bool:
     try:
         if not Sources.get(Base):
             Sources[Base] = []
-        Sources[Base].append({"Sourcer":Sourcer,"Url":Url,"Offset":Offset})
+        Sources[Base].append({"Sourcer":Sourcer,"Url":Url,"Offset":Offset,"Name":Source_Name})
         #Sources.update({Source_Name:{"Base":Base,"Url":Url,"Offset":Offset}})
         return True
     except: return False
 
 def Save_Sources():
     # 保存源
-    open("./sources.json","w",encoding="utf-8").write(json.dumps(Sources,indent=4,ensure_ascii=False))
+    open("./data/sources.json","w",encoding="utf-8").write(json.dumps(Sources,indent=4,ensure_ascii=False))
 
 def Install_Core():
     # 安装识别库

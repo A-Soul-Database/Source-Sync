@@ -20,3 +20,7 @@ class BaseModel:
     def Change_Url(self,url):
         # 改变Self的Url
         self.Acquire_Url = url
+
+    def __get_Random_Range__(self):
+        #随机视频分段时间范围
+        return [800,2400]
