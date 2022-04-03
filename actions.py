@@ -11,7 +11,6 @@ CONFIG = {
 for Sourcer in Sync.Parse.Lister:
     Sourcer_Instance = Sourcer()
     print("Start Sync For Sourcer: {}.".format(Sourcer_Instance.__Sourcer__()))
-
     Lists = Sourcer_Instance.Lister()
     CONFIG["Random_Range"] = Sourcer_Instance.__get_Random_Range__()
     for _item in Lists:
