@@ -6,6 +6,7 @@ except:
     sourcer = 0
 
 print("""
+
     Sourcer Prepare
     1. Download /A-Soul-Database/PhotoSearch/releases/download/latest/Alphas.zip
     2. Unzip Alphas.zip
