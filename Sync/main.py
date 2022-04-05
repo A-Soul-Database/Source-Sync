@@ -14,7 +14,7 @@ def Search(keywords:str):
     for _base,_detail in Sources.items():
         if keywords == _base: return {"Base":_base,"Detail":_detail}
         for _item in _detail:
-            if keywords == _item["Name"] or keywords == _item["Url"] : return {"Base":_base,"Detail":_detail}
+            if keywords in _item["Name"] or keywords in _item["Url"] : return {"Base":_base,"Detail":_detail}
 
 def Search_With_Sourcer(keywords:str,Sourcer:str):
     # 搜索Sourcer对应的源

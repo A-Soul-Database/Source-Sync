@@ -78,7 +78,7 @@ class Normal_Uid(BiliBili):
         _info = requests.get(f"https://api.bilibili.com/x/v2/medialist/resource/list?type=1&oid={oid}&otype=2&biz_id={biz_id}&ps=30",headers=self.headers).json()
         for i in _info["data"]["media_list"]:
             returns.append({"Name":i["title"],"Url":f"https://www.bilibili.com/{i['bv_id']}",'Sourcer':sourcer}) # 遍历列表中的元素
-        if _info["data"]["has_more"]:self.roll_series_list(biz_id,_info["data"]["media_list"][-1]["id"],returns) # 如果列表没有循环完毕,则继续循环
+        if _info["data"]["has_more"]:self.roll_series_list(biz_id=biz_id,oid=_info["data"]["media_list"][-1]["id"],sourcer=sourcer,returns=returns) # 如果列表没有循环完毕,则继续循环
         return returns
 
     def Get_P(self):
@@ -88,9 +88,9 @@ class Normal_Uid(BiliBili):
 class Record_type1(Normal_Uid):
     # A-Soul 二创计画\ Asoul 录播姬\ Tony单人可(只有弹幕版本) \
     # 回梦游仙479  \ 想不出好名zhi \晚贝珈然琳\ 一个魂录播组 \ 明弦正 \ 的解析格式
-    uids = ["547510303","1220802721","32290343",
+    uidss = ["547510303","1220802721","32290343",
         "3512064","85948224","2055198561","1316454367","39742197"]
-
+    uids = ["547510303"]
     def Lister(self):
         All_List , Record_List = [], []
         for i in self.uids: All_List += super().roll_series_list(i,sourcer=i)
