@@ -10,11 +10,19 @@ not os.path.exists("./Sync/Detect/Alphas") and print("\n Warning: Detect Alphas 
 
 def Search(keywords:str):
     keywords = keywords.split("/")[-1]
-    # 根据 文件名搜索
+    # 根据 文件名/Url 搜索
     for _base,_detail in Sources.items():
-        if keywords == _base: return _base
+        if keywords == _base: return {"Base":_base,"Detail":_detail}
         for _item in _detail:
-            if keywords == _item["Name"] or keywords == _item["Url"] : return _base
+            if keywords == _item["Name"] or keywords == _item["Url"] : return {"Base":_base,"Detail":_detail}
+
+def Search_With_Sourcer(keywords:str,Sourcer:str):
+    # 搜索Sourcer对应的源
+    _search = Search(keywords)
+    if not _search : return None
+    for _item in _search["Detail"]:
+        if Sourcer in _item["Sourcer"]: return {"Base":_search["Base"],"Item":_item}
+    return None
 
 def Is_forbidden(Url:str):
     # 检测是否被禁止
