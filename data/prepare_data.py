@@ -1,11 +1,6 @@
-import sys
-import subprocess
-try:
-    sourcer = sys.argv[1]
-    running_type = sys.argv[2]
-except:
-    sourcer = 0
-    running_type = "once"
+import zipfile
+import os
+import requests
 
 print("""
 
@@ -13,16 +8,17 @@ print("""
     1. Download /A-Soul-Database/PhotoSearch/releases/download/latest/Alphas.zip
     2. Unzip Alphas.zip
 
-    Run: py prepare_data.py [sourcer 0(Github)/1(Proxied) ]  [Running Type /once(Default)/daemon ] Default: 0
+    Run: py prepare_data.py
 """
 )
-export_path = "../Sync/Detect/"
+export_path = os.path.dirname(__file__)+ "/../Sync/Detect/"
+with open(export_path+"Alphas.zip","wb") as f:
+    chunk_size = 1024
+    with requests.get("https://github.com/A-Soul-Database/PhotoSearch/releases/download/latest/Alphas.zip") as r:
+        for chunk in r.iter_content(chunk_size=chunk_size):
+            f.write(chunk)
+            f.flush()
 
-print("Downloading Alphas...")
-sourcer_url = "https://github.com" if sourcer == 0 else "https://hub.fastgit.xyz"
-subprocess.Popen(["wget","-O",f"{export_path}/Alphas.zip",f"{sourcer_url}/A-Soul-Database/PhotoSearch/releases/download/latest/Alphas.zip" , "--no-check-certificate"]).wait()
-print("Unzipping Alphas...")
-subprocess.Popen(["unzip",f"{export_path}Alphas.zip","-d",export_path]).wait()
-print("Removing Alphas.zip...")
-subprocess.Popen(["rm",f"{export_path}Alphas.zip"]).wait()
-print("Done ")
+Alpha = zipfile.ZipFile(export_path+"Alphas.zip")
+Alpha.extractall(export_path)
+print("ok")

@@ -6,7 +6,7 @@ import Sync
 
 Sources = json.loads(open("./data/sources.json","r",encoding="utf-8").read()) if os.path.exists("./data/sources.json") else {}
 forbidden_urls = json.loads(open("./data/forbidden_urls.json","r",encoding="utf-8").read()) if os.path.exists("./data/forbidden_urls.json") else {}
-not os.path.exists("./Sync/Detect/Alphas") and print("\n Warning: Detect Alphas Not Found! \n")
+not os.path.exists("./Sync/Detect/Alphas") and os.system("echo  \n Warning: Detect Alphas Not Found! \n To Get Alphas, Run: \n py ./data/prepare_data.py")
 
 def Search(keywords:str):
     keywords = keywords.split("/")[-1]
@@ -24,10 +24,14 @@ def Search_With_Sourcer(keywords:str,Sourcer:str):
         if Sourcer in _item["Sourcer"]: return {"Base":_search["Base"],"Item":_item}
     return None
 
-def Is_forbidden(Url:str):
+def Is_forbidden(Url:str,Sourcer:str)->bool:
     # 检测是否被禁止
-    for i in forbidden_urls:
-        if i in Url: return True
+    for k,v in forbidden_urls.items():
+        if k == "All" or k == Sourcer:
+            for n in v:
+                if n in Url: return True
+    return False
+    # 既不属于全部禁用词,指定源也不存在,则返回
 
 def Add_Item(Base:str,Source_Name:str,Url:str,Sourcer:str,Offset:float)->bool:
     # 添加项目
@@ -47,7 +51,7 @@ def Save_Sources():
 
 def Install_Core():
     # 安装识别库
-    ...
+    from data import prepare_data
 
 class RCD:
     # RCD: Randomly Consistent Detection 随机持续性检测

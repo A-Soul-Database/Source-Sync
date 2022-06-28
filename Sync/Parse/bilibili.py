@@ -88,9 +88,14 @@ class Normal_Uid(BiliBili):
 class Record_type1(Normal_Uid):
     # A-Soul 二创计画\ Asoul 录播姬\ Tony单人可(只有弹幕版本) \
     # 回梦游仙479  \ 想不出好名zhi \晚贝珈然琳\ 一个魂录播组 \ 明弦正 \ 的解析格式
-    uidss = ["547510303","1220802721","32290343",
+    """
+    uids = ["547510303","1220802721","32290343",
         "3512064","85948224","2055198561","1316454367","39742197"]
-    uids = ["547510303"]
+    """
+    def __init__(self,uids:list=["547510303"]):
+        self.uids = uids
+        super().__init__()
+
     def Lister(self):
         All_List , Record_List = [], []
         for i in self.uids: All_List += super().roll_series_list(i,sourcer=i)
@@ -101,7 +106,10 @@ class Record_type1(Normal_Uid):
 
 class Record_type2(Normal_Uid):
     # 北平一个魂儿 的解析格式
-    uids = ["444853351"]
+    def __init__(self,uids:list=["444853351"]):
+        self.uids = uids
+        super().__init__()
+        
     def Lister(self):
         All_List , Record_List = [], []
         for i in self.uids: All_List += super().roll_series_list(i,sourcer=i)

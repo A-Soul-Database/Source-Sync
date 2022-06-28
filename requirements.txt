@@ -1,0 +1,7 @@
+imagehash
+opencv-python
+distance
+requests
+lxml
+
+# ffmpeg is Required!

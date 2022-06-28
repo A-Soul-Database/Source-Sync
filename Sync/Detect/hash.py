@@ -9,6 +9,7 @@ import json
 import subprocess
 import time
 import os
+import logging
 
 Config = {
     "Hash_Size":12, # 哈希值长度(改了会导致之前的库失效)
@@ -73,15 +74,14 @@ def Do_Detect(url,Args,Time_Scales:list=[],Single_Type_Secs:int=0,Delay:int=0.5,
     start_time = time.time()
     def Screenshot(Down_Url,args,Secs):
         # 指定某一秒截图
-        return subprocess.Popen('ffmpeg -y {} -ss {}  -i "{}"  -vframes 1 output.png'.format(args,Secs,Down_Url),shell=True)
+        return subprocess.run('ffmpeg -y {} -ss {}  -i "{}"  -vframes 1 output.png'.format(args,Secs,Down_Url),shell=False)
     
     def Screenshots(Down_url,Args,Time_Scales):
         # 指定某一时间段截图
-        p = subprocess.Popen(f'ffmpeg -y {Args} -ss {Time_Scales[0]} -i "{Down_url}" -to {Time_Scales[1]-Time_Scales[0]} -c copy "tmp.mp4"',shell=True,
+        subprocess.run(f'ffmpeg -y {Args} -ss {Time_Scales[0]} -i "{Down_url}" -to {Time_Scales[1]-Time_Scales[0]} -c copy "tmp.mp4"',shell=False,
             stderr=subprocess.DEVNULL,stdout=subprocess.DEVNULL)
-        p.wait()
-        return subprocess.Popen('ffmpeg -y -i tmp.mp4 -vf fps=1 out%d.png'
-            ,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,shell=True).wait()
+        return subprocess.run('ffmpeg -y -i tmp.mp4 -vf fps=1 out%d.png'
+            ,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,shell=False)
 
     def Acquire_Source():
         # 根据某张图片搜索视频及秒数
@@ -109,7 +109,8 @@ def Do_Detect(url,Args,Time_Scales:list=[],Single_Type_Secs:int=0,Delay:int=0.5,
     else:
         try:
             Screenshots(url,Args,Time_Scales)
-            print("Downloaded in {} seconds".format(round(time.time()-start_time,2)))
+            #print("Downloaded in {} seconds".format(round(time.time()-start_time,2)))
+            logging.debug(f"Downloaded in {round(time.time()-start_time,2)} seconds")
             return Acquire_Source_List()
         except:
             Do_Clear() 
